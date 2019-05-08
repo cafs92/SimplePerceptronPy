@@ -1,6 +1,5 @@
 # SimplePerceptronPy
-# Simple Perceptron in Python Language
-# Simple Perceptron for two datasets: using the Iris  toy problem of a AND  logic door.
+# Simple Perceptron in Python Language for the Iris dataset and a custom AND logic door problem
 libs used:
 numpy
 pandas
