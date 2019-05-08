@@ -10,9 +10,8 @@ def main():
     #OPT3 = Iris train 2 att:
     #       1: yes
     #       2: no
-    dataset = np.array(PS.artificialgen())
 
-    PS.perceptron(dataset)
+    PS.perceptron(2, 3)
 
 
 

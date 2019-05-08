@@ -2,24 +2,30 @@ import numpy as np
 import pandas as pd
 import random
 import matplotlib.pyplot as plt
-import seaborn as sbrn
+from src import util as ut
 
 class SP:
-
     def __init__(self):
         self.path = './../datasets/'
         self.datasetname = 'iris.dat'
         self.trainingSize = 0.8
         self.eta = 0.1
-        self.realizations = 1
+        self.realizations = 20
         self.epoch = 150
         self.dataset = np.asarray([])
         self.trainingSet = []
         self.testSet = []
         self.w = []
-        self.allw = []
         self.hitratings = []
         self.confusionMatrixes = []
+        self.min = 100
+        self.max = 0
+        self.allw = []
+        self.alltrainings = []
+        self.alltests = []
+        self.x = ''
+        self.y = ''
+        self.title = ''
 
 
     def predict(self, u):
@@ -31,8 +37,6 @@ class SP:
         while c < self.epoch:
             ae = 0  # Accumulated Error
             for i in self.trainingSet:
-                print(i)
-                print(self.w)
                 u = np.dot(self.w, i[0:len(i)-1])
                 y = int(self.predict(u))
                 e = i[len(i) - 1] - y
@@ -66,6 +70,7 @@ class SP:
                     cm[0, 1] += 1
 
         hr = c/len(self.testSet)
+
         self.hitratings.append(hr)
         self.confusionMatrixes.append(cm)
         print('Hit Rating: ', hr*100)
@@ -75,7 +80,7 @@ class SP:
         new = []
         for i in range(len(dataset)):
             new.append(np.insert(dataset[i],0,-1))
-            return np.asarray(new)
+        return np.asarray(new)
 
 
     def inserty(self,x,y):
@@ -139,14 +144,15 @@ class SP:
         self.testSet = dataset[int(len(dataset) * self.trainingSize):]
 
     def createWeights(self, length):
-        return np.random.rand(1, length)
+        w = np.random.rand(1, length)[0]
+        return w
 
     def adjustWeights(self,dataset, e):
         return self.w + (self.eta) * (e) * dataset
 
     def normalize(self, dataset):
         dataset.transpose()
-        for i in range(dataset.shape[1]):
+        for i in range(dataset.shape[1] -1):
             max_ = max(dataset[:, i])
             min_ = min(dataset[:, i])
 
@@ -160,44 +166,80 @@ class SP:
         else:
             return self.readData(self.path, self.datasetname)
 
-    def preprocesssing(self, dataset):
-        self.w = self.createWeights(dataset.shape[1])
-        self.normalize(dataset[0:len(dataset) - 1])
-        dataset = self.insertbias(dataset)
-        self.dataset = dataset
-
-    def irisattchoice(self,dataset, opt):
+    def dataselect(self, opt):
         if opt == 0:
-            return dataset
+            return self.readData(self.path, self.datasetname)
         elif opt == 1:
-            return dataset[:, [1, 2, -1]]
+            dataset = self.readData(self.path, self.datasetname)
+            return dataset[:, [0, 1, -1]]
+        elif opt == 2:
+            dataset = self.readData(self.path, self.datasetname)
+            return dataset[:, [2, 3, -1]]
         else:
-            return dataset[:, [3, 4, -1]]
+            return self.artificialgen()
 
-    def plotdata(self, dataset, xlabel='x', ylabely='y', title='Dataset'):
+    def postprocessing(self, opt1):
+        self.min = 100
+        self.max = 0
+        for i in range(len(self.hitratings)):
+            if self.hitratings[i] <= self.min:
+                self.min = i
+        for i in range(len(self.hitratings)):
+            if self.hitratings[i] >= self.max:
+                self.max = i
 
-        data = dataset[:, [1, 2, -1]]
-        print(data)
-
-        df = pd.DataFrame(data, columns=[xlabel, ylabely, title])
-        sbrn.lmplot(x='x', y='y', data=df, fit_reg=False, hue=title, markers=["o", "*"])
-        plt.title(title)
-        plt.show()
+        if opt1 != 0:
+            print('\n\n\nPloting data for minimum hit rating: ')
+            ut.plot_decision_region(self.dataset, self.x, self.y, self.title, self.allw[self.min -1])
+            print('\n\n\nPloting data for maximum hit rating: ')
+            ut.plot_decision_region(self.dataset, self.x, self.y, self.title, self.allw[self.max -1])
 
 
-    def perceptron(self,dataset):
-        #self.preprocesssing(dataset)
+    def setplotatt(self,opt1,opt2):
+        if opt1 == 1:
+            self.x = 'Sepal Length'
+            self.y = 'Sepal Width'
+            if opt2 == 1:
+                self.title = 'Iris Dataset - Setosa x All'
+            elif opt2 == 1:
+                self.title = 'Iris Dataset - Versicolor x All'
+            else:
+                self.title = 'Iris Dataset - Virginica x All'
+        elif opt1 == 2:
+            self.x = 'Petal Length'
+            self.y = 'Petal Width'
+            if opt2 == 1:
+                self.title = 'Iris Dataset - Setosa x All'
+            elif opt2 == 1:
+                self.title = 'Iris Dataset - Versicolor x All'
+            else:
+                self.title = 'Iris Dataset - Virginica x All'
+        elif opt1 == 3:
+            self.x = 'x'
+            self.y = 'y'
+            self.title = 'Artificial Dataset'
+
+    def perceptron(self, opt, opt2):
+        dataset = self.dataselect(opt)
+        print(dataset[1])
+        if opt != 3:
+            dataset = self.classSelection(dataset, opt2)
+
         self.w = self.createWeights(dataset.shape[1])
-        self.normalize(dataset[0:len(dataset) - 1])
+        self.normalize(dataset[:len(dataset) - 1])
         dataset = self.insertbias(dataset)
-
-        print(dataset)
         self.dataset = dataset
 
         for i in range(self.realizations):
+            self.w = self.createWeights((self.dataset.shape[1]) - 1)
             np.random.shuffle(dataset)
             self.dividedata(dataset)
-            print(dataset)
+            self.alltrainings.append(self.trainingSet)
+            self.alltests.append(self.trainingSet)
             self.training()
+            self.allw.append(self.w)
             self.test()
-            self.w = self.createWeights(self.w.shape[1]) #reset w for next iteraction
+
+        print('Accuracy: ', np.asarray(self.hitratings).mean())
+        print('Standard Deviation: ',np.asarray(self.hitratings).std())
+        self.postprocessing(opt)
