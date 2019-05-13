@@ -155,7 +155,6 @@ class SP:
         for i in range(dataset.shape[1] -1):
             max_ = max(dataset[:, i])
             min_ = min(dataset[:, i])
-
             for j in range(dataset.shape[0]):
                 dataset[j, i] = (dataset[j, i] - min_) / (max_ - min_)
         dataset.transpose()
@@ -178,21 +177,25 @@ class SP:
         else:
             return self.artificialgen()
 
-    def postprocessing(self, opt1):
-        self.min = 100
-        self.max = 0
+    def postprocessing(self, opt1,opt2):
+        #auxmin = 1000
+        auxmax = -1
         for i in range(len(self.hitratings)):
-            if self.hitratings[i] <= self.min:
-                self.min = i
-        for i in range(len(self.hitratings)):
-            if self.hitratings[i] >= self.max:
+           # if self.hitratings[i] <= auxmin:
+           #     self.min = i
+           #     auxmin = self.hitratings[i]
+            if self.hitratings[i] >= auxmax:
                 self.max = i
+                auxmax = self.hitratings[i]
+        self.setplotatt(opt1,opt2)
 
         if opt1 != 0:
-            print('\n\n\nPloting data for minimum hit rating: ')
-            ut.plot_decision_region(self.dataset, self.x, self.y, self.title, self.allw[self.min -1])
+         #   print('\n\n\nPloting data for minimum hit rating: ')
+         #   ut.plot_decision_region(self.dataset, self.x, self.y,
+         #                           self.title +' Min', self.allw[self.min], self.alltrainings[self.min])
             print('\n\n\nPloting data for maximum hit rating: ')
-            ut.plot_decision_region(self.dataset, self.x, self.y, self.title, self.allw[self.max -1])
+            ut.plot_decision_region(self.dataset, self.x, self.y,
+                                    self.title +' Max', self.allw[self.max], self.alltrainings[self.max])
 
 
     def setplotatt(self,opt1,opt2):
@@ -226,7 +229,7 @@ class SP:
             dataset = self.classSelection(dataset, opt2)
 
         self.w = self.createWeights(dataset.shape[1])
-        self.normalize(dataset[:len(dataset) - 1])
+        self.normalize(dataset[:len(dataset)])
         dataset = self.insertbias(dataset)
         self.dataset = dataset
 
@@ -242,4 +245,4 @@ class SP:
 
         print('Accuracy: ', np.asarray(self.hitratings).mean())
         print('Standard Deviation: ',np.asarray(self.hitratings).std())
-        self.postprocessing(opt)
+        self.postprocessing(opt,opt2)

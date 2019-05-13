@@ -3,16 +3,16 @@ import numpy as np
 from src import SP as sp
 
 
-def plot_decision_region(dataset,xlabel, ylabely, title, weights):
+def plot_decision_region(dataset,xlabel, ylabely, title, weights, testdata):
     plt.rcParams['figure.figsize'] = (11, 7)
     plot_colors = "cb"
-    plot_step = 0.02
+    plot_step = 0.005
     class_names = [0, 1]
 
     base = dataset
 
-    x_min, x_max = base[:, 1].min() - 1, base[:, 1].max() + 1
-    y_min, y_max = base[:, 2].min() - 1, base[:, 2].max() + 1
+    x_min, x_max = -0.1, 1.1
+    y_min, y_max = -0.1, 1.1
 
     xx, yy = np.meshgrid(np.arange(x_min, x_max, plot_step),
                          np.arange(y_min, y_max, plot_step))
@@ -35,9 +35,18 @@ def plot_decision_region(dataset,xlabel, ylabely, title, weights):
     plt.xlabel(xlabel)
     plt.ylabel(ylabely)
     plt.title(title)
+    print
 
-    for i, color in zip(range(len(class_names)), plot_colors):
-        idx = np.where(y == i)
-        plt.scatter(base[idx, 1], base[idx, 2], c=color, label=class_names[i],
-                    cmap=plt.cm.RdYlBu, edgecolor='black', s=15)
+    for i in range(len(dataset)):
+        if dataset[i,-1] == 0:
+            plt.plot(dataset[i][1], dataset[i][2], "b^")
+        else:
+            plt.plot(dataset[i][1], dataset[i][2], "ro")
+
+    for i in range(len(testdata)):
+        if testdata[i, -1] == 0:
+            plt.plot(testdata[i][1], testdata[i][2], "w^")
+        else:
+            plt.plot(testdata[i][1], testdata[i][2], "ko")
+
     plt.show()
