@@ -270,4 +270,5 @@ class SP:
 
         print('Accuracy: ', np.asarray(self.hitratings).mean())
         print('Standard Deviation: ',np.asarray(self.hitratings).std())
+        print ('Variance:', np.asarray(self.hitratings).var())
         self.postprocessing(opt,opt2)

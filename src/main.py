@@ -8,10 +8,11 @@ def main():
     #       1: Iris Sepal x Sepal
     #       2: Iris Petal x Petal
     #       3: Artificial AND
+    #       4: Artificial OR
     #OPT2 = 1: Setosa x All
     #       2: Versicolor x All
     #       3: Virginica x All
 
-    PS.perceptron(4, 1)
+    PS.perceptron(2, 3)
 if __name__ == '__main__':
     main()
