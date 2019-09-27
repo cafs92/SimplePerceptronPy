@@ -12,6 +12,6 @@ def main():
     #       2: Versicolor x All
     #       3: Virginica x All
 
-    PS.perceptron(2, 1)
+    PS.perceptron(4, 1)
 if __name__ == '__main__':
     main()

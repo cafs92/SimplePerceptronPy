@@ -97,19 +97,40 @@ class SP:
 
     def artificialgen(self):
         data = []
-        for i in range(40):
-            if(i < 10):
+        for i in range(400):
+            if(i < 100):
                 x = 0 + random.uniform(-0.1, 0.1)
                 y = 0 + random.uniform(-0.1, 0.1)
                 data.append([x, y, 0])
-            elif(i >= 10 and i < 20):
+            elif(i >= 100 and i < 200):
                 x = 1 + random.uniform(-0.1, 0.1)
                 y = 0 + random.uniform(-0.1, 0.1)
                 data.append([x, y, 0])
-            elif(i >= 20 and i < 30):
+            elif(i >= 200 and i < 300):
                 x = 0 + random.uniform(-0.1, 0.1)
                 y = 1 + random.uniform(-0.1, 0.1)
                 data.append([x, y, 0])
+            else:
+                x = 1 + random.uniform(-0.1, 0.1)
+                y = 1 + random.uniform(-0.1, 0.1)
+                data.append([x, y, 1])
+        return np.array(data)
+
+    def artificial2gen(self):
+        data = []
+        for i in range(400):
+            if(i < 100):
+                x = 0 + random.uniform(-0.1, 0.1)
+                y = 0 + random.uniform(-0.1, 0.1)
+                data.append([x, y, 0])
+            elif(i >= 100 and i < 200):
+                x = 1 + random.uniform(-0.1, 0.1)
+                y = 0 + random.uniform(-0.1, 0.1)
+                data.append([x, y, 1])
+            elif(i >= 200 and i < 300):
+                x = 0 + random.uniform(-0.1, 0.1)
+                y = 1 + random.uniform(-0.1, 0.1)
+                data.append([x, y, 1])
             else:
                 x = 1 + random.uniform(-0.1, 0.1)
                 y = 1 + random.uniform(-0.1, 0.1)
@@ -162,6 +183,8 @@ class SP:
     def datagen(self, opt):
         if opt == 1:
             return self.artificialgen()
+        elif opt == 4:
+            return self.artificial2gen()
         else:
             return self.readData(self.path, self.datasetname)
 
@@ -174,8 +197,10 @@ class SP:
         elif opt == 2:
             dataset = self.readData(self.path, self.datasetname)
             return dataset[:, [2, 3, -1]]
-        else:
+        elif opt == 3:
             return self.artificialgen()
+        else:
+            return self.artificial2gen()
 
     def postprocessing(self, opt1,opt2):
         #auxmin = 1000
@@ -225,7 +250,7 @@ class SP:
     def perceptron(self, opt, opt2):
         dataset = self.dataselect(opt)
         print(dataset[1])
-        if opt != 3:
+        if opt != 3 and opt != 4:
             dataset = self.classSelection(dataset, opt2)
 
         self.w = self.createWeights(dataset.shape[1])
